@@ -1,0 +1,71 @@
+## Writing a function that returns 'Freedon of Movement' at any point ##
+
+freed_mov <- function(dimpoint, n){
+  d<- length(dimpoint)
+  f<- numeric(length = d)
+  for(i in 1:d){
+    if(dimpoint[i]==0 | dimpoint[i]==(n-1)){
+      f[i]=1
+    } else{
+      f[i]=2
+    }
+  }
+  freed<- sum(f)
+  freed
+}
+
+
+## Next Function ##
+## Returns a matrix where every row is a 1-step neighboring point ##
+
+get_nbrs<- function(x,n){
+  d<- length(x)
+  dummy_vect1<- numeric(length = d)
+  dummy_vect2<- numeric(length = d)
+  up_constrain<- x==(n-1)
+  down_constrain<- x==0
+  num_row<- freed_mov(x,n)
+  nbrs_points<- matrix(nrow = num_row, ncol = d)
+  row_no<- 1
+  for(i in 1:d){
+    if(up_constrain[i]==T){
+      dummy_vect1[i]<- -1
+      nbrs_points[row_no,] <- x+dummy_vect1
+      row_no<- row_no+1
+      dummy_vect1<- numeric(length = d)
+    } else if(down_constrain[i]==T){
+      dummy_vect1[i]<- 1
+      nbrs_points[row_no,]<- x+dummy_vect1
+      row_no<- row_no+1
+      dummy_vect1<- numeric(length = d)
+    } else{
+      dummy_vect1[i]<- 1
+      dummy_vect2[i]<- -1
+      nbrs_points[row_no,]<- x+dummy_vect1
+      row_no<- row_no+1
+      nbrs_points[row_no,]<- x+dummy_vect2 
+      row_no<- row_no+1
+      dummy_vect1<- numeric(length = d)
+      dummy_vect2<- numeric(length = d)
+    }
+  }
+  nbrs_points
+}
+
+
+############################################################
+## Valid Moves Function ##
+## Given a point x, this function returns the no. of valid walks given 'm' steps ##
+
+valid_moves<- function(x,n,m){
+  result <- 0
+  if(m==0){
+    return(1)
+  }
+  nbrs<- get_nbrs(x,n)
+  nbrs<- lapply(seq_len(nrow(nbrs)), function(i) nbrs[i,])
+  for(i in nbrs){
+    result<- result + valid_moves(i,n,m-1)
+  }
+  result
+}
